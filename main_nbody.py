@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import math
 import random
 
-
 parser = argparse.ArgumentParser(description='EqMotion')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
 parser.add_argument('--batch_size', type=int, default=100, metavar='N',
@@ -124,6 +123,7 @@ def main():
                 best_ade = ade
                 best_epoch = epoch
                 best_error = error
+                torch.save(model.state_dict(), "/content/drive/MyDrive/EqMotion/checkpoints/nbody.pth")
             print("*** Best Val Loss: %.5f \t Best Test Loss: %.5f \t Best ade: %.5f \t Best epoch %d" % (best_val_loss, best_test_loss, best_ade, best_epoch))
             # print('The seed is :',seed)
             # print(best_error)
@@ -140,14 +140,15 @@ def train(model, optimizer, epoch, loader, backprop=True):
     res = {'epoch': epoch, 'loss': 0, 'coord_reg': 0, 'counter': 0}
 
     for batch_idx, data in enumerate(loader):
+        # returns list of output, any index can give batchsize
         batch_size, n_nodes, length, _ = data[0].size()
-        data = [d.to(device) for d in data]
+        data = [d.to(device) for d in data] # loc, vel, edge_attr, charges, loc_end 
 
         loc, vel, edge_attr, charges, loc_end = data
 
         optimizer.zero_grad()
 
-        vel = vel * constant
+        vel = vel * constant # constant = 1
         nodes = torch.sqrt(torch.sum(vel ** 2, dim=-1)).detach()
         loc_pred, _ = model(nodes, loc.detach(), vel, edge_attr)
         
@@ -202,6 +203,8 @@ def test(model, optimizer, epoch, loader, backprop=True):
             optimizer.zero_grad()
 
             vel = vel * constant
+            # nodes refers to the rho in the paper
+            # formula calculates the norm of vel vector
             nodes = torch.sqrt(torch.sum(vel ** 2, dim=-1)).detach()
             loc_pred, category_list = model(nodes, loc.detach(), vel,edge_attr)
 
