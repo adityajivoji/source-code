@@ -1,6 +1,5 @@
 import os
 import importlib
-import urllib.parse
 import zipfile
 import subprocess
 
@@ -71,6 +70,14 @@ file_id = "10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe"
 destination_folder = "./"
 download_file_from_google_drive(file_id, destination_folder)
 
+def delete_dataset(dataset_sub_dir_path):
+    if os.path.exists(dataset_sub_dir_path):
+        # Deleting all files in the 'supermarket' folder
+        for root, dirs, files in os.walk(dataset_sub_dir_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # print(f"deleting {file_path}")
+                os.remove(file_path)
 # file id 10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe
 
 # Link to the google drive https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing
