@@ -55,17 +55,6 @@ To evaluate a model of long-term prediction task, run
 ```
 CUDA_VISIBLE_DEVICES={GPU_ID} python main_h36m.py --past_length 25 --future_length 25 --channel 96 --model_name {your_model_name} --test
 ```
-#### Results
-We provide our trained models in "h36m/saved_models" and the overall average results at different time are reported below.
-
-|                | 80ms   | 160ms  | 320ms  | 400ms  |
-|----------------|------|------|------|------|
-| EqMotion| 9.1 | 20.1 | 43.7 | 55.0 |
-
-|                | 560ms   | 1000ms  |
-|----------------|------|------|
-| EqMotion| 73.4 | 106.9 |
-
 ## Pedestrian Trajectory
 ### Data preparation
 To preprocess the raw data to .npy file, run
@@ -83,7 +72,7 @@ To evaluate, run
 ```
 CUDA_VISIBLE_DEVICES={GPU_ID} python main_eth_diverse.py --subset {subset_name} --test --model_name {saved_model_name}
 ```
-## supermarket dataset
+## Supermarket Dataset
 download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
   to preprocess the file to .npy file, run the following command
   ```
