@@ -6,7 +6,6 @@ Download the dataset from the following [LINK](https://drive.google.com/file/d/1
   ```
   cd supermarket\dataset\preprocess.py
   python preprocess.py --subset {subset_name}
-
   ```
   ### Run experiments
   To train, run (you can add optional arguments)

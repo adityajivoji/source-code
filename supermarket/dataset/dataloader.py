@@ -62,8 +62,10 @@ class Data2Numpy:
             data = self.split[split][['tag_id', 'x', 'y', 'trajectory_name']].copy()
             grouped_data = data.groupby(['tag_id', 'trajectory_name'])[['x', 'y']].apply(lambda x: x.values.tolist()).to_dict()
             data_len = len(grouped_data)
+            # considering that this dataset has only one agent
             num_data = np.ones((data_len))
-            dataset = np.zeros((data_len, self.past_length + self.future_length, 2))
+            # shape of dataset = length of data, number of agents(here one), total trajectory length, 2 coordinates
+            dataset = np.zeros((data_len, 1,  self.past_length + self.future_length, 2))
             for i, key in enumerate(grouped_data.keys()):
                 trajectory = grouped_data[key]
                 if len(trajectory) < self.past_length + self.future_length:
