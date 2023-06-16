@@ -20,21 +20,25 @@ def main():
     parser = argparse.ArgumentParser(description="arguments for preprocessing")
     parser.add_argument('--subset',
                         type=str,
-                        default='eth',
-                        help='Name of the subset.(german_1)')
+                        default='german_4',
+                        help='Name of the subset.(german_1) default german_4')
     parser.add_argument('--resting_time',
                         type=int,
                         default=5,
-                        help='Name of the subset.')
+                        help='total time for halt to be considered')
+    parser.add_argument('--past_length',
+                        type=int,
+                        default=20,
+                        help='length of the past trajectory')
+    parser.add_argument('--future_length',
+                        type=int,
+                        default=20,
+                        help='length of the future trajectory')
     parser.add_argument('--single_agent',
                         action='store_true',
                         default= True,
                         help='number of agents')
-    parser.add_argument('--min_length',
-                        action='store_true',
-                        default= True,
-                        help='total length of trajectory to be valid past + future length')
-    parser.add_argument('--include_halt',
+    parser.add_argument('--consider_halt',
                         action='store_true',
                         default= False,
                         help='end trajectory if agent stops')
@@ -44,21 +48,18 @@ def main():
                         help='divide into train test and val')
     args = parser.parse_args()
 
-
-    data_path = f"./supermarket/{args.subset}/{args.subset}.txt"
-    processed_data_folder_path = f"./supermarket/{args.subset}"
-    
+    data_path = f"./supermarket/{args.subset}/{args.subset}.txt"    
     data = pd.read_csv(data_path, sep=";")
-    print(f"Total Duplicate Rows: {data[data.duplicated()]}")
+    print(f"Total Duplicate Rows: {len(data[data.duplicated()])}")
     print("Dropping Duplicate Entries")
     # removing duplicate rows entries
     data = data.drop_duplicates(subset=['tag_id', 'time'])
     if args.single_agent:
-        if args.consider_halt:
-            trajectory_data_generation(data, processed_data_folder_path, args)
+        if not args.consider_halt:
+            trajectory_data_generation(data, args)
             # convert to machine readable format
         else:
-            trajectory_data_generation_no_rest(data, processed_data_folder_path)
+            trajectory_data_generation_no_rest(data, args)
     else:
         pass
 

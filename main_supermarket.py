@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import random
-
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
@@ -143,8 +143,8 @@ def main():
     past_length = args.past_length
     future_length = args.future_length
 
-    dataset_train = Supermarket(args.subset, args.past_length, args.future_length, args.scale, split='train', phase='training')
-    dataset_test = Supermarket(args.subset, args.past_length, args.future_length, args.test_scale, split='test', phase='testing')
+    dataset_train = Supermarket(args.subset, args.past_length, args.future_length, device)
+    dataset_test = Supermarket(args.subset, args.past_length, args.future_length, device)
 
     loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
                                                num_workers=8)
@@ -226,7 +226,7 @@ def train(model, optimizer, epoch, loader, backprop=True):
 
     res = {'epoch': epoch, 'loss': 0, 'coord_reg': 0, 'counter': 0}
 
-    for batch_idx, data in enumerate(loader):
+    for batch_idx, data in tqdm(enumerate(loader)):
         if data is not None:
             loc, loc_end, num_valid = data
             loc = loc.cuda()
@@ -260,6 +260,7 @@ def train(model, optimizer, epoch, loader, backprop=True):
                 optimizer.step()
             res['loss'] += loss.item() * batch_size
             res['counter'] += batch_size
+            print("rese cohtter", res['counter'])
 
     if not backprop:
         prefix = "==> "

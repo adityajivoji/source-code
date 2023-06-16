@@ -140,7 +140,7 @@ def find_resting_time(data, tag_id, velocity_threshold, resting_threshold):
         resting_periods.append((start_time, end_time))
     return resting_periods
 
-def trajectory_data_generation(data, path_to_folder, args, train_ratio=0.8, test_ratio=0.1, val_ratio=0.1):
+def trajectory_data_generation(data,  args, train_ratio=0.8, test_ratio=0.1, val_ratio=0.1):
     # Sort the dataset by time
     data['time'] = pd.to_datetime(data['time'], format='%Y-%m-%d %H:%M:%S')
     data = data.sort_values(by='time', ascending=True)
@@ -168,8 +168,6 @@ def trajectory_data_generation(data, path_to_folder, args, train_ratio=0.8, test
         starting_point = None
         trajectory_name = "trajectory_1"
         rows_to_add = []
-        state = 0
-
         # Iterating over each data point for the current tag_id
         for i in tqdm(range(len(tag_data))):
             prev_point = (tag_data.iloc[i - 1]['x'], tag_data.iloc[i - 1]['y']) if i > 0 else None
@@ -252,12 +250,12 @@ def trajectory_data_generation(data, path_to_folder, args, train_ratio=0.8, test
                 test,
             'val':
                 val}
-    toNumpy = Data2Numpy(args.subset, args.past, args.future, split)
+    toNumpy = Data2Numpy(args.subset, args.past_length, args.future_length, split)
     toNumpy.generate_data()
 
 
 
-def trajectory_data_generation_no_rest(data, path_to_folder, args, train_ratio=0.8, test_ratio=0.1, val_ratio=0.1):
+def trajectory_data_generation_no_rest(data, args, train_ratio=0.8, test_ratio=0.1, val_ratio=0.1):
     # Sort the dataset by time
     data['time'] = pd.to_datetime(data['time'], format='%Y-%m-%d %H:%M:%S')
     data = data.sort_values(by='time', ascending=True)
@@ -284,7 +282,6 @@ def trajectory_data_generation_no_rest(data, path_to_folder, args, train_ratio=0
         starting_point = None
         trajectory_name = "trajectory_1"
         rows_to_add = []
-        state = 0
         start_loc = 0
         # Iterating over each data point for the current tag_id
         for i in tqdm(range(len(tag_data))):

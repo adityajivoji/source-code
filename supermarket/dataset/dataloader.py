@@ -12,9 +12,11 @@ import torch
 from torch.utils.data import Dataset
 
 class Supermarket(Dataset):
-    def __init__(self, data_folder_path, past_length, future_length, device):
-        self.data_file = data_folder_path + 'train_data.npy'
-        self.num_file = data_folder_path + 'train_num.npy'
+    def __init__(self, subset, past_length, future_length, device):
+        self.subset = subset
+        self.dataset_directory = f"supermarket/dataset/preprocessed_dataset/{self.subset}"
+        self.data_file = self.dataset_directory + '/train_data.npy'
+        self.num_file = self.dataset_directory + '/train_num.npy'
         self.past_length = past_length
         self.future_length = future_length
 
@@ -46,11 +48,8 @@ class Data2Numpy:
         self.past_length = past_length
         self.future_length = future_length
         self.split = split
-        processed_data_folder_path = f"./preprocessed_dataset/{self.subset}"
+        self.processed_data_folder_path = "./preprocessed_dataset/" + self.subset
         self.data_path = f"./supermarket/{self.subset}"
-        output_dir = os.path.dirname(processed_data_folder_path)
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
 
         assert subset in ['german_1', 'german_2','german_3', 'german_4']
 
@@ -58,7 +57,12 @@ class Data2Numpy:
     def generate_data(self):
         # data is of the format [tag_id', 'time', 'x', 'y', 'description', 'trajectory_name', 'point_type']
         # extract only tag_id, x, y, trajectory_name from self.data
-        for split in self.split.keys:
+        directory_path = self.processed_data_folder_path
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)
+            print(f"Directory '{directory_path}' created.")
+
+        for split in list(self.split.keys()):
             data = self.split[split][['tag_id', 'x', 'y', 'trajectory_name']].copy()
             grouped_data = data.groupby(['tag_id', 'trajectory_name'])[['x', 'y']].apply(lambda x: x.values.tolist()).to_dict()
             data_len = len(grouped_data)
@@ -72,14 +76,9 @@ class Data2Numpy:
                     continue
                 else:
                     dataset[i] = trajectory[:self.past_length + self.future_length]
-            np.save(f"./preprocessed_dataset/{self.subset}/{split}_data.npy", dataset)
-            np.save(f"./preprocessed_dataset/{self.subset}/{split}_num.npy", num_data)
+            np.save(f"{self.processed_data_folder_path}/{split}_data.npy", dataset)
+            np.save(f"{self.processed_data_folder_path}/{split}_num.npy", num_data)
 
-
-
-
-
-        
 
 
 
