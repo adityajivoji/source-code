@@ -84,6 +84,7 @@ To evaluate, run
 CUDA_VISIBLE_DEVICES={GPU_ID} python main_eth_diverse.py --subset {subset_name} --test --model_name {saved_model_name}
 ```
 ## supermarket dataset
+download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
   to preprocess the file to .npy file, run the following command
   ```
   cd supermarket\dataset\preprocess.py
