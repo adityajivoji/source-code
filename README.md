@@ -8,7 +8,8 @@ you can also download the dataset from the following [LINK](https://drive.google
 
   To preprocess the file to .npy file, run the following command
   ```
-  python supermarket/dataset/preprocess.py --subset {subset_name}
+  cd supermarket/dataset/
+  python preprocess.py --subset {subset_name}
   ```
   ### Run experiments
   To train, run (you can add optional arguments)
