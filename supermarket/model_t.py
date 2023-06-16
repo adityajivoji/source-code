@@ -168,6 +168,7 @@ class EqMotion(nn.Module):
             vel = torch.matmul(dct_m,vel)
         # Embed the node features and velocity angles
         # inconsistency: in paper concatenation happens first and same linear layer is applied
+        # print(h.dtype, self.embedding.weight.dtype)
         h = self.embedding(h)
         vel_angle_embedding = self.embedding2(vel_angle)
         # hi^0

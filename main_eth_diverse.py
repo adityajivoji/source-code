@@ -14,7 +14,7 @@ import random
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
-parser.add_argument('--batch_size', type=int, default=100, metavar='N',
+parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 128)')
 parser.add_argument('--epochs', type=int, default=60, metavar='N',
                     help='number of epochs to train (default: 10)')
@@ -103,18 +103,18 @@ try:
 except OSError:
     pass
 
-if args.subset == 'zara1':
-    args.channels = 128
-else:
-    args.channels = 64
+# if args.subset == 'zara1':
+#     args.channels = 128
+# else:
+#     args.channels = 64
 
-if args.subset == 'hotel':
-    args.lr = 5e-4
-else:
-    args.lr = 1e-3
+# if args.subset == 'hotel':
+#     args.lr = 5e-4
+# else:
+#     args.lr = 1e-3
 
-if args.subset == 'eth':
-    args.test_scale = 1.6
+# if args.subset == 'eth':
+#     args.test_scale = 1.6
 
 def setup_seed(seed):
      torch.manual_seed(seed)
@@ -140,16 +140,14 @@ def main():
 
     print('The seed is :',seed)
 
-    past_length = args.past_length
-    future_length = args.future_length
 
     dataset_train = eth_dataset(args.subset, args.past_length, args.future_length, args.scale, split='train', phase='training')
     dataset_test = eth_dataset(args.subset, args.past_length, args.future_length, args.test_scale, split='test', phase='testing')
 
     loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
-                                               num_workers=8)
+                                               num_workers=4)
     loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False, drop_last=False,
-                                              num_workers=8)
+                                              num_workers=4)
 
 
     model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh)    

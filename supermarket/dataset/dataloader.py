@@ -27,16 +27,19 @@ class Supermarket(Dataset):
             raise FileNotFoundError(f"No file found at {self.num_file} \n Consider Preprocessing")
 
         # Load the data from file
-        self.dataset = torch.Tensor(np.load(self.data_file)).to(device)
-        self.num_agent = torch.Tensor(np.load(self.num_file)).to(device)
+        self.dataset = np.load(self.data_file)
+        self.num_agent = np.load(self.num_file)
         assert self.dataset.shape[0] == self.num_agent.shape[0]
 
     def __getitem__(self, index):
         trajectory = self.dataset[index]
+        # print("inside getitem ", trajectory.shape, self.dataset.shape)
+        past = trajectory[:, :self.past_length]
+        future = trajectory[:, self.past_length:self.past_length+self.future_length]
         num_agent = self.num_agent[index]
 
         # Convert to tensor and return
-        return trajectory, num_agent
+        return past, future, num_agent
 
     def __len__(self):
         return len(self.dataset)

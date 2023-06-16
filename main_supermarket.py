@@ -14,9 +14,11 @@ from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
-parser.add_argument('--batch_size', type=int, default=100, metavar='N',
+parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 128)')
 parser.add_argument('--epochs', type=int, default=60, metavar='N',
+                    help='number of epochs to train (default: 10)')
+parser.add_argument('--num_workers', type=int, default=2, metavar='N',
                     help='number of epochs to train (default: 10)')
 parser.add_argument('--past_length', type=int, default=8, metavar='N',
                     help='number of epochs to train (default: 10)')
@@ -103,18 +105,18 @@ try:
 except OSError:
     pass
 
-if args.subset == 'zara1':
-    args.channels = 128
-else:
-    args.channels = 64
+# if args.subset == 'zara1':
+#     args.channels = 128
+# else:
+#     args.channels = 64
 
-if args.subset == 'hotel':
-    args.lr = 5e-4
-else:
-    args.lr = 1e-3
+# if args.subset == 'hotel':
+#     args.lr = 5e-4
+# else:
+#     args.lr = 1e-3
 
-if args.subset == 'eth':
-    args.test_scale = 1.6
+# if args.subset == 'eth':
+#     args.test_scale = 1.6
 
 def setup_seed(seed):
      torch.manual_seed(seed)
@@ -140,16 +142,13 @@ def main():
 
     print('The seed is :',seed)
 
-    past_length = args.past_length
-    future_length = args.future_length
-
     dataset_train = Supermarket(args.subset, args.past_length, args.future_length, device)
     dataset_test = Supermarket(args.subset, args.past_length, args.future_length, device)
 
     loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
-                                               num_workers=8)
+                                               num_workers=args.num_workers)
     loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False, drop_last=False,
-                                              num_workers=8)
+                                              num_workers=args.num_workers)
 
 
     model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh)    
@@ -229,8 +228,8 @@ def train(model, optimizer, epoch, loader, backprop=True):
     for batch_idx, data in tqdm(enumerate(loader)):
         if data is not None:
             loc, loc_end, num_valid = data
-            loc = loc.cuda()
-            loc_end = loc_end.cuda()
+            loc = loc.cuda().to(torch.float32)
+            loc_end = loc_end.cuda().to(torch.float32)
             num_valid = num_valid.cuda()
             num_valid = num_valid.type(torch.int)
 
@@ -260,7 +259,6 @@ def train(model, optimizer, epoch, loader, backprop=True):
                 optimizer.step()
             res['loss'] += loss.item() * batch_size
             res['counter'] += batch_size
-            print("rese cohtter", res['counter'])
 
     if not backprop:
         prefix = "==> "
@@ -282,11 +280,11 @@ def test(model, optimizer, epoch, loader, backprop=True):
     res = {'epoch': epoch, 'loss': 0, 'coord_reg': 0, 'counter': 0, 'ade': 0}
 
     with torch.no_grad():
-        for batch_idx, data in enumerate(loader):
+        for batch_idx, data in tqdm(enumerate(loader)):
             if data is not None:
                 loc, loc_end, num_valid = data
-                loc = loc.cuda()
-                loc_end = loc_end.cuda()
+                loc = loc.cuda().to(torch.float32)
+                loc_end = loc_end.cuda().to(torch.float32)
                 num_valid = num_valid.cuda()
                 num_valid = num_valid.type(torch.int)
 
