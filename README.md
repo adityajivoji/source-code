@@ -2,14 +2,13 @@
 ## Supermarket Dataset
 to download the dataset, run
 ```
-python -u "d:\AJ\source-code\supermarket\dataset\download_dataset.py"
+python -u supermarket/dataset/download_dataset.py
 ```
 you can also download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
 
   To preprocess the file to .npy file, run the following command
   ```
-  cd supermarket\dataset\preprocess.py
-  python preprocess.py --subset {subset_name}
+  python supermarket/dataset/preprocess.py --subset {subset_name}
   ```
   ### Run experiments
   To train, run (you can add optional arguments)
