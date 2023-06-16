@@ -22,6 +22,8 @@ def extract_7z_file(archive_file_path, destination_folder):
         archive_ref.extractall(destination_folder)
 
 def download_file_from_google_drive(file_id, destination_folder):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    destination_folder = os.path.join(script_dir, destination_folder)
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
     
@@ -54,6 +56,7 @@ def download_file_from_google_drive(file_id, destination_folder):
     # Extract contents from the downloaded file
     print("Extractng...")
     extract_zip_file(zip_file_path, dataset_sub_dir_path)
+    os.remove(zip_file_path)
 
     # Find .7z files and extract their contents
     for root, dirs, files in os.walk(dataset_sub_dir_path):
@@ -62,6 +65,7 @@ def download_file_from_google_drive(file_id, destination_folder):
                 archive_file_path = os.path.join(root, file)
                 print(f"Extracting {archive_file_path}")
                 extract_7z_file(archive_file_path, root)
+                os.remove(archive_file_path)
 
 file_id = "10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe"
 destination_folder = "./"
