@@ -1,3 +1,23 @@
+# Indoor Trajecotry Forecasting
+## Supermarket Dataset
+Download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
+
+  To preprocess the file to .npy file, run the following command
+  ```
+  cd supermarket\dataset\preprocess.py
+  python preprocess.py --subset {subset_name}
+
+  ```
+  ### Run experiments
+  To train, run (you can add optional arguments)
+  ```
+  CUDA_VISIBLE_DEVICES={GPU_ID} python main_supermarket.py --subset {subset_name}
+  ```
+  To evaluate, run
+  ```
+  CUDA_VISIBLE_DEVICES={GPU_ID} python main_supermarket.py --subset {subset_name} --test --model_name {saved_model_name}
+  ```
+
 ## Particle Dynamic
 ### Data preparation
 We already provide the dataset file in "n_body_system/dataset". If you want to generate data by yourself, for the prediction task please run:
@@ -72,21 +92,4 @@ To evaluate, run
 ```
 CUDA_VISIBLE_DEVICES={GPU_ID} python main_eth_diverse.py --subset {subset_name} --test --model_name {saved_model_name}
 ```
-## Supermarket Dataset
-Download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
 
-  To preprocess the file to .npy file, run the following command
-  ```
-  cd supermarket\dataset\preprocess.py
-  python preprocess.py --subset {subset_name}
-
-  ```
-  ### Run experiments
-  To train, run (you can add optional arguments)
-  ```
-  CUDA_VISIBLE_DEVICES={GPU_ID} python main_supermarket.py --subset {subset_name}
-  ```
-  To evaluate, run
-  ```
-  CUDA_VISIBLE_DEVICES={GPU_ID} python main_supermarket.py --subset {subset_name} --test --model_name {saved_model_name}
-  ```
