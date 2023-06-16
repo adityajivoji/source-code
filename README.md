@@ -2,7 +2,7 @@
 ## Supermarket Dataset
 to download the dataset, run
 ```
-python -u "d:\AJ\source-code\supermarket\dataset\download_dataset.py"
+python -u "supermarket\dataset\download_dataset.py"
 ```
 you can also download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
 
