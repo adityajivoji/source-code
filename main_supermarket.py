@@ -68,9 +68,9 @@ parser.add_argument('--norm_diff', type=eval, default=False, metavar='N',
                     help='normalize_diff')
 parser.add_argument('--tanh', type=eval, default=False, metavar='N',
                     help='use tanh')
-parser.add_argument('--subset', type=str, default='eth',
+parser.add_argument('--subset', type=str, default='german_4',
                     help='Name of the subset.')
-parser.add_argument('--model_save_dir', type=str, default='eth_ucy/saved_models',
+parser.add_argument('--model_save_dir', type=str, default='supermarket/saved_models',
                     help='Name of the subset.')
 parser.add_argument('--scale', type=float, default=1, metavar='N',
                     help='dataset scale')
