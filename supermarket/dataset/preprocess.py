@@ -45,8 +45,8 @@ def main():
     args = parser.parse_args()
 
 
-    data_path = f"./shopping_dataset/{args.subset}/{args.subset}.txt"
-    processed_data_folder_path = f"./shopping_dataset/{args.subset}"
+    data_path = f"./supermarket/{args.subset}/{args.subset}.txt"
+    processed_data_folder_path = f"./supermarket/{args.subset}"
     
     data = pd.read_csv(data_path, sep=";")
     print(f"Total Duplicate Rows: {data[data.duplicated()]}")

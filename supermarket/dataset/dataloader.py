@@ -47,7 +47,7 @@ class Data2Numpy:
         self.future_length = future_length
         self.split = split
         processed_data_folder_path = f"./preprocessed_dataset/{self.subset}"
-        self.data_path = f"./shopping_dataset/{self.subset}"
+        self.data_path = f"./supermarket/{self.subset}"
         output_dir = os.path.dirname(processed_data_folder_path)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
