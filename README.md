@@ -1,6 +1,10 @@
 # Indoor Trajecotry Forecasting
 ## Supermarket Dataset
-Download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
+to download the dataset, run
+```
+python -u "d:\AJ\source-code\supermarket\dataset\download_dataset.py"
+```
+you can also download the dataset from the following [LINK](https://drive.google.com/file/d/10aIN5peOzb-zNjtnRXodo4mbuz3FNuZe/view?usp=sharing)
 
   To preprocess the file to .npy file, run the following command
   ```
