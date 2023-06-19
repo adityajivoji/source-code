@@ -21,7 +21,7 @@ from scipy.interpolate import make_interp_spline
 
 import os
 
-def plot_trajectory(loc, loc_end, loc_pred, save_dir=None):
+def plot_trajectory(loc, loc_end, loc_pred, epoch, save_dir=None):
     prediction_head = 20
     for index in prediction_head:
         # Extract x and y coordinates from loc, loc_end, and loc_pred
@@ -73,12 +73,11 @@ def plot_trajectory(loc, loc_end, loc_pred, save_dir=None):
         # Save the plot if save_dir is provided
         if save_dir:
             os.makedirs(save_dir, exist_ok=True)
-            save_path = os.path.join(save_dir, 'trajectory_plot.png')
+            save_path = os.path.join(save_dir, f'trajectory_plot_{epoch}.png')
             plt.savefig(save_path)
-
         plt.show()
 
-def visualize(loader_test, model):
+def visualize(loader_test, model, epoch, save_dir=None):
     with torch.no_grad():
         for _, data in enumerate(loader_test):
             if data is not None:
@@ -91,8 +90,6 @@ def visualize(loader_test, model):
                 vel = torch.zeros_like(loc)
                 vel[:,:,1:] = loc[:,:,1:] - loc[:,:,:-1]
                 vel[:,:,0] = vel[:,:,1]
-
-                batch_size, agent_num, length, _ = loc.size()
 
                 vel = vel * 1
                 nodes = torch.sqrt(torch.sum(vel ** 2, dim=-1)).detach()
@@ -108,7 +105,7 @@ def visualize(loader_test, model):
                 loc_end = loc_end.squeeze()
                 loc_pred = loc_pred.squeeze()
                 index = np.random.randint(0,loc.shape[0])
-                plot_trajectory(loc[index], loc_end[index],loc_pred[index])
+                plot_trajectory(loc[index], loc_end[index],loc_pred[index], save_dir=save_dir)
                 break
             
 if  __name__ == "__main__":
@@ -227,3 +224,6 @@ if  __name__ == "__main__":
                 pred_0 = np.concatenate((loc[index], loc_pred[index][index]), axis = 0)
                 plot_trajectory(loc[index], loc_end[index],loc_pred[index])
                 break
+
+
+

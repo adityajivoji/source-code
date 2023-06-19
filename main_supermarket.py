@@ -183,6 +183,7 @@ def main():
             if epoch % args.epoch_decay == 0 and epoch > 0:
                 lr_now = lr_decay(optimizer, lr_now, args.lr_gamma)
         train(model, optimizer, epoch, loader_train)
+        plot_trajectory(loader_test, model, epoch, './img/')
         if epoch % args.test_interval == 0:
             test_loss, ade = test(model, optimizer, epoch, loader_test, backprop=False)
             results['epochs'].append(epoch)
@@ -226,7 +227,7 @@ def train(model, optimizer, epoch, loader, backprop=True):
 
     res = {'epoch': epoch, 'loss': 0, 'coord_reg': 0, 'counter': 0}
 
-    for batch_idx, data in tqdm(enumerate(loader)):
+    for batch_idx, data in enumerate(loader):
         if data is not None:
             loc, loc_end, num_valid = data
             loc = loc.cuda().to(torch.float32)
@@ -281,7 +282,7 @@ def test(model, optimizer, epoch, loader, backprop=True):
     res = {'epoch': epoch, 'loss': 0, 'coord_reg': 0, 'counter': 0, 'ade': 0}
 
     with torch.no_grad():
-        for batch_idx, data in tqdm(enumerate(loader)):
+        for batch_idx, data in enumerate(loader):
             if data is not None:
                 loc, loc_end, num_valid = data
                 loc = loc.cuda().to(torch.float32)
@@ -310,8 +311,7 @@ def test(model, optimizer, epoch, loader, backprop=True):
                 res['loss'] += fde*batch_size
                 res['ade'] += ade*batch_size
                 res['counter'] += batch_size
-                if batch_idx == 0:
-                    plot_trajectory(loader, model)
+
     res['ade'] *= args.test_scale
     res['loss'] *= args.test_scale
 
