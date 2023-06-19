@@ -19,54 +19,98 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline
 
-def plot_trajectory(loc, loc_end, loc_pred):
-    # Extract x and y coordinates from loc, loc_end, and loc_pred
-    x_loc, y_loc = zip(*loc)
-    x_loc_end, y_loc_end = zip(*loc_end)
-    x_loc_pred, y_loc_pred = zip(*loc_pred)
+import os
 
-    # Generate more points to create smooth curves
-    t_loc = np.arange(len(loc))
-    t_loc_end = np.arange(len(loc_end))
-    t_loc_pred = np.arange(len(loc_pred))
+def plot_trajectory(loc, loc_end, loc_pred, save_dir=None):
+    prediction_head = 20
+    for index in prediction_head:
+        # Extract x and y coordinates from loc, loc_end, and loc_pred
+        x_loc, y_loc = zip(*loc)
+        x_loc_end, y_loc_end = zip(*loc_end)
+        x_loc_pred, y_loc_pred = zip(*loc_pred)
 
-    t_loc_new = np.linspace(t_loc.min(), t_loc.max(), 300)
-    t_loc_end_new = np.linspace(t_loc_end.min(), t_loc_end.max(), 300)
-    t_loc_pred_new = np.linspace(t_loc_pred.min(), t_loc_pred.max(), 300)
+        # Generate more points to create smooth curves
+        t_loc = np.arange(len(loc))
+        t_loc_end = np.arange(len(loc_end))
+        t_loc_pred = np.arange(len(loc_pred))
 
-    spl_loc = make_interp_spline(t_loc, np.column_stack((x_loc, y_loc)), k=3)
-    spl_loc_end = make_interp_spline(t_loc_end, np.column_stack((x_loc_end, y_loc_end)), k=3)
-    spl_loc_pred = make_interp_spline(t_loc_pred, np.column_stack((x_loc_pred, y_loc_pred)), k=3)
+        t_loc_new = np.linspace(t_loc.min(), t_loc.max(), 300)
+        t_loc_end_new = np.linspace(t_loc_end.min(), t_loc_end.max(), 300)
+        t_loc_pred_new = np.linspace(t_loc_pred.min(), t_loc_pred.max(), 300)
 
-    loc_smooth = spl_loc(t_loc_new)
-    loc_end_smooth = spl_loc_end(t_loc_end_new)
-    loc_pred_smooth = spl_loc_pred(t_loc_pred_new)
+        spl_loc = make_interp_spline(t_loc, np.column_stack((x_loc, y_loc)), k=3)
+        spl_loc_end = make_interp_spline(t_loc_end, np.column_stack((x_loc_end, y_loc_end)), k=3)
+        spl_loc_pred = make_interp_spline(t_loc_pred, np.column_stack((x_loc_pred, y_loc_pred)), k=3)
 
-    x_loc_smooth, y_loc_smooth = loc_smooth[:, 0], loc_smooth[:, 1]
-    x_loc_end_smooth, y_loc_end_smooth = loc_end_smooth[:, 0], loc_end_smooth[:, 1]
-    x_loc_pred_smooth, y_loc_pred_smooth = loc_pred_smooth[:, 0], loc_pred_smooth[:, 1]
+        loc_smooth = spl_loc(t_loc_new)
+        loc_end_smooth = spl_loc_end(t_loc_end_new)
+        loc_pred_smooth = spl_loc_pred(t_loc_pred_new)
 
-    # Plot the trajectories
-    plt.plot(x_loc_smooth, y_loc_smooth, color='blue', label='loc')
-    plt.plot(x_loc_end_smooth, y_loc_end_smooth, color='green', label='loc_end')
-    plt.plot(x_loc_pred_smooth, y_loc_pred_smooth, color='orange', label='loc_pred')
+        x_loc_smooth, y_loc_smooth = loc_smooth[:, 0], loc_smooth[:, 1]
+        x_loc_end_smooth, y_loc_end_smooth = loc_end_smooth[:, 0], loc_end_smooth[:, 1]
+        x_loc_pred_smooth, y_loc_pred_smooth = loc_pred_smooth[:, 0], loc_pred_smooth[:, 1]
 
-    # Scatter plot the original coordinates
-    plt.scatter(x_loc, y_loc, color='blue')
-    plt.scatter(x_loc_end, y_loc_end, color='green')
-    plt.scatter(x_loc_pred, y_loc_pred, color='orange')
+        # Plot the trajectories
+        plt.plot(x_loc_smooth, y_loc_smooth, color='blue', label='loc')
+        plt.plot(x_loc_end_smooth, y_loc_end_smooth, color='green', label='loc_end')
+        plt.plot(x_loc_pred_smooth, y_loc_pred_smooth, color='orange', label='loc_pred')
 
-    # Connect the last point of loc to the first point of loc_end and loc_pred
-    plt.plot([x_loc[-1], x_loc_end[0]], [y_loc[-1], y_loc_end[0]], color='blue')
-    plt.plot([x_loc[-1], x_loc_pred[0]], [y_loc[-1], y_loc_pred[0]], color='blue')
+        # Scatter plot the original coordinates
+        plt.scatter(x_loc, y_loc, color='blue')
+        plt.scatter(x_loc_end, y_loc_end, color='green')
+        plt.scatter(x_loc_pred, y_loc_pred, color='orange')
 
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.title('Smooth Trajectory')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+        # Connect the last point of loc to the first point of loc_end and loc_pred
+        plt.plot([x_loc[-1], x_loc_end[0]], [y_loc[-1], y_loc_end[0]], color='blue')
+        plt.plot([x_loc[-1], x_loc_pred[0]], [y_loc[-1], y_loc_pred[0]], color='blue')
 
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.title('Smooth Trajectory')
+        plt.grid(True)
+        plt.legend()
+
+        # Save the plot if save_dir is provided
+        if save_dir:
+            os.makedirs(save_dir, exist_ok=True)
+            save_path = os.path.join(save_dir, 'trajectory_plot.png')
+            plt.savefig(save_path)
+
+        plt.show()
+
+def visualize(loader_test, model):
+    with torch.no_grad():
+        for _, data in enumerate(loader_test):
+            if data is not None:
+                loc, loc_end, num_valid = data
+                loc = loc.cuda().to(torch.float32)
+                loc_end = loc_end.cuda().to(torch.float32)
+                num_valid = num_valid.cuda()
+                num_valid = num_valid.type(torch.int)
+
+                vel = torch.zeros_like(loc)
+                vel[:,:,1:] = loc[:,:,1:] - loc[:,:,:-1]
+                vel[:,:,0] = vel[:,:,1]
+
+                batch_size, agent_num, length, _ = loc.size()
+
+                vel = vel * 1
+                nodes = torch.sqrt(torch.sum(vel ** 2, dim=-1)).detach()
+                loc_pred, category_list = model(nodes, loc.detach(), vel, num_valid)
+
+                loc_pred = np.array(loc_pred.cpu()) # B,N,20,T,2 [:,0,:,:,:]
+                loc_end = np.array(loc_end.cpu()) # B,N,T,2 [:,0,:,:]
+                loc = np.array(loc.cpu().unsqueeze(1)) # B,N,T,2 [:,0,:,:]
+
+                loc_end = loc_end[:,:,None,:,:]
+
+                loc = loc.squeeze()
+                loc_end = loc_end.squeeze()
+                loc_pred = loc_pred.squeeze()
+                index = np.random.randint(0,loc.shape[0])
+                plot_trajectory(loc[index], loc_end[index],loc_pred[index])
+                break
+            
 if  __name__ == "__main__":
     parser = argparse.ArgumentParser(description='VAE MNIST Example')
     parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
@@ -147,7 +191,7 @@ if  __name__ == "__main__":
                                               num_workers=args.num_workers)
 
     model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh)    
-    # model.load_state_dict(torch.load("./supermarket/saved_models/german_4_ckpt_best.pth.tar"))
+    model.load_state_dict(torch.load("./supermarket/saved_models/german_4_ckpt_best.pth"))
     model.eval()
 
     with torch.no_grad():
@@ -180,12 +224,6 @@ if  __name__ == "__main__":
                 loc_pred = loc_pred.squeeze()
                 index = 5
                 gt = np.concatenate((loc[index], loc_end[index]), axis=0)
-                print(loc.shape, loc_pred.shape)
                 pred_0 = np.concatenate((loc[index], loc_pred[index][index]), axis = 0)
-                print(pred_0.shape)
-                for index in range(20):
-                    plot_trajectory(loc[index], loc_end[index],loc_pred[index][0])
+                plot_trajectory(loc[index], loc_end[index],loc_pred[index])
                 break
-
-
-

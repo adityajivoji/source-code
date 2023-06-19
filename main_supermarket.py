@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import math
 import random
 from tqdm import tqdm
+from visualize import *
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
@@ -309,6 +310,8 @@ def test(model, optimizer, epoch, loader, backprop=True):
                 res['loss'] += fde*batch_size
                 res['ade'] += ade*batch_size
                 res['counter'] += batch_size
+                if batch_idx == 0:
+                    plot_trajectory(loader, model)
     res['ade'] *= args.test_scale
     res['loss'] *= args.test_scale
 
