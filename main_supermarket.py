@@ -183,7 +183,7 @@ def main():
             if epoch % args.epoch_decay == 0 and epoch > 0:
                 lr_now = lr_decay(optimizer, lr_now, args.lr_gamma)
         train(model, optimizer, epoch, loader_train)
-        plot_trajectory(loader_test, model, epoch, './img/')
+        visualize(loader_test, model, epoch, './img/')
         if epoch % args.test_interval == 0:
             test_loss, ade = test(model, optimizer, epoch, loader_test, backprop=False)
             results['epochs'].append(epoch)

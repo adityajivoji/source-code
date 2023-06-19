@@ -21,9 +21,10 @@ from scipy.interpolate import make_interp_spline
 
 import os
 
-def plot_trajectory(loc, loc_end, loc_pred, epoch, save_dir=None):
+def plot_trajectory(loc, loc_end, loc_pred_head, epoch, save_dir=None):
     prediction_head = 20
-    for index in prediction_head:
+    for index in range(prediction_head):
+        loc_pred = loc_pred_head[index]
         # Extract x and y coordinates from loc, loc_end, and loc_pred
         x_loc, y_loc = zip(*loc)
         x_loc_end, y_loc_end = zip(*loc_end)
@@ -75,7 +76,6 @@ def plot_trajectory(loc, loc_end, loc_pred, epoch, save_dir=None):
             os.makedirs(save_dir, exist_ok=True)
             save_path = os.path.join(save_dir, f'trajectory_plot_{epoch}.png')
             plt.savefig(save_path)
-        plt.show()
 
 def visualize(loader_test, model, epoch, save_dir=None):
     with torch.no_grad():
@@ -105,7 +105,7 @@ def visualize(loader_test, model, epoch, save_dir=None):
                 loc_end = loc_end.squeeze()
                 loc_pred = loc_pred.squeeze()
                 index = np.random.randint(0,loc.shape[0])
-                plot_trajectory(loc[index], loc_end[index],loc_pred[index], save_dir=save_dir)
+                plot_trajectory(loc[index], loc_end[index],loc_pred[index], epoch, save_dir=save_dir)
                 break
             
 if  __name__ == "__main__":
