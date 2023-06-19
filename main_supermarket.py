@@ -106,19 +106,6 @@ try:
 except OSError:
     pass
 
-# if args.subset == 'zara1':
-#     args.channels = 128
-# else:
-#     args.channels = 64
-
-# if args.subset == 'hotel':
-#     args.lr = 5e-4
-# else:
-#     args.lr = 1e-3
-
-# if args.subset == 'eth':
-#     args.test_scale = 1.6
-
 def setup_seed(seed):
      torch.manual_seed(seed)
      torch.cuda.manual_seed_all(seed)
@@ -183,8 +170,10 @@ def main():
             if epoch % args.epoch_decay == 0 and epoch > 0:
                 lr_now = lr_decay(optimizer, lr_now, args.lr_gamma)
         train(model, optimizer, epoch, loader_train)
-        visualize(loader_test, model, epoch, './img/')
+        
         if epoch % args.test_interval == 0:
+            if args.vis:
+                visualize(loader_test, model, epoch, './img/')
             test_loss, ade = test(model, optimizer, epoch, loader_test, backprop=False)
             results['epochs'].append(epoch)
             results['losess'].append(test_loss)

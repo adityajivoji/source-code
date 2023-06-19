@@ -24,6 +24,7 @@ import os
 def plot_trajectory(loc, loc_end, loc_pred_head, epoch, save_dir=None):
     prediction_head = 20
     for index in range(prediction_head):
+        plt.figure()  # Create a new figure for each plot
         loc_pred = loc_pred_head[index]
         # Extract x and y coordinates from loc, loc_end, and loc_pred
         x_loc, y_loc = zip(*loc)
@@ -74,7 +75,7 @@ def plot_trajectory(loc, loc_end, loc_pred_head, epoch, save_dir=None):
         # Save the plot if save_dir is provided
         if save_dir:
             os.makedirs(save_dir, exist_ok=True)
-            save_path = os.path.join(save_dir, f'trajectory_plot_{epoch}.png')
+            save_path = os.path.join(save_dir, f'trajectory_plot_{epoch}_{index}.png')
             plt.savefig(save_path)
 
 def visualize(loader_test, model, epoch, save_dir=None):
