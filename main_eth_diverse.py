@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import math
 import random
 
-
+print("GPU COUNT", torch.cuda.device_count())
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
 parser.add_argument('--batch_size', type=int, default=64, metavar='N',

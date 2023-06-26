@@ -54,6 +54,8 @@ def main():
     print("Dropping Duplicate Entries")
     # removing duplicate rows entries
     data = data.drop_duplicates(subset=['tag_id', 'time'])
+    print("Tag_ids =", data['tag_id'].unique())
+    
     if args.single_agent:
         if not args.consider_halt:
             trajectory_data_generation(data, args)

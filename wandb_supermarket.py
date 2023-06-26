@@ -12,6 +12,35 @@ import math
 import random
 from tqdm import tqdm
 from visualize import *
+import wandb
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+wandb.login()
+sweep_configuration = {
+    'method': 'random',
+    'name': 'Eqmotion',
+    'metric': {
+        'goal': 'minimize', 
+        'name': 'ade'
+        },
+    # "command": "CUDA_VISIBLE_DEVICES=0 python main_supermarket.py",
+    'parameters': {
+        'batch_size': {'values': [32, 64]},
+        'epochs': {'values': [50, 75, 100]},
+        'lr': {'max': 0.0001, 'min': 0.000001},
+        "epoch_decay": {'values':[1,2]},
+        "lr_gamma":{'max': 0.99,'min': 0.5},
+        "nf": {"values": [32, 64, 128, 256]},
+        "channels": {"values":[32,64,128,256]},
+        "tanh": {"values":[True, False]}
+     }
+}
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+sweep_id = wandb.sweep(
+  sweep=sweep_configuration, 
+  project='supermarket_eqmotion'
+  )
+
 
 parser = argparse.ArgumentParser(description='main supermarket')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
@@ -31,7 +60,7 @@ parser.add_argument('--seed', type=int, default=-1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log_interval', type=int, default=1, metavar='N',
                     help='how many batches to wait before logging training status (default: 1)')
-parser.add_argument('--test_interval', type=int, default=5, metavar='N',
+parser.add_argument('--test_interval', type=int, default=1, metavar='N',
                     help='how many epochs to wait before logging test (default: 1)')
 parser.add_argument('--outf', type=str, default='supermarket/logs', metavar='N',
                     help='folder to output log')
@@ -70,16 +99,15 @@ parser.add_argument('--test_scale', type=float, default=1, metavar='N',
 parser.add_argument('--n_layers', type=int, default=4, metavar='N',
                     help='number of layers for the autoencoder')
 parser.add_argument("--test",action='store_true')
+
 parser.add_argument("--vis",action='store_true')
 
-time_exp_dic = {'time': 0, 'counter': 0}
 
 
 args = parser.parse_args()
 args.cuda = True
-
 args.apply_dct = False
-
+print("default args", args)
 device = torch.device("cuda" if args.cuda else "cpu")
 # loss_mse = nn.MSELoss()
 
@@ -106,97 +134,121 @@ def lr_decay(optimizer, lr_now, gamma):
         param_group['lr'] = lr_new
     return lr_new
 
-def main():
-    args.batch_size = 64
-    args.epochs = 250
-    args.lr = 0.00008864871648297063
-    args.epoch_decay = 1
-    args.lr_gamma = 0.6503359937533781
-    args.nf = 512
-    args.channels = 512
-    args.tanh = True
-    # seed = 861
-    print(args)
-    # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+def main(config=None):
+    with wandb.init(config=config):
+        # 'method': 'random',
+        # 'name': 'Eqmotion',
+        # 'metric': {
+        #     'goal': 'minimize', 
+        #     'name': 'ade'
+        #     },
+        # 'parameters': {
+        #     'batch_size': {'values': [16, 32, 64]},
+        #     'epochs': {'values': [50, 75, 100]},
+        #     'lr': {'max': 0.01, 'min': 0.000001},
+        #     "epoch_decay": {'values':[1,2]},
+        #     "lr_gamma":{'max': 0.99,'min': 0.1},
+        #     "nf": {"values": [32, 64, 128, 256]},
+        #     "channels": {"values":[32,64,128,256]},
+        #     "tanh": {"values":[True, False]}
+        # }
+        args.batch_size = wandb.config.batch_size
+        args.epochs = wandb.config.epochs
+        args.lr = wandb.config.lr
+        args.epoch_decay = wandb.config.epoch_decay
+        args.lr_gamma = wandb.config.lr_gamma
+        args.nf = wandb.config.nf
+        args.channels = wandb.config.channels
+        args.tanh = wandb.config.tanh
+        print(args)
+        # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
         
-    print("Total GPU",torch.cuda.device_count())
-    if args.seed >= 0:
-        seed = args.seed
-        setup_seed(seed)
-    else:
-        seed = random.randint(0,1000)
-        setup_seed(seed)
+        device_count = torch.cuda.device_count()
+        print("CUDA Device Count:", device_count)
 
-    print('The seed is :',seed)
+        if args.seed >= 0:
+            seed = args.seed
+            setup_seed(seed)
+        else:
+            seed = random.randint(0,1000)
+            setup_seed(seed)
 
-    dataset_train = Supermarket(args.subset, args.past_length, args.future_length, device)
-    dataset_test = Supermarket(args.subset, args.past_length, args.future_length, device)
-
-    loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
-                                               num_workers=args.num_workers)
-    loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False, drop_last=False,
-                                              num_workers=args.num_workers)
-
-
-    model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh, dct= args.apply_dct)    
-
-    # print(model)
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-
-    if args.test:
-        model_path = args.model_save_dir + '/' + args.model_name +'.pth.tar'
-        print('Loading model from:', model_path)
-        model_ckpt = torch.load(model_path)
-        model.load_state_dict(model_ckpt['state_dict'], strict=False)
-        test_loss, ade = test(model, optimizer, 0, loader_test, backprop=False)
-        print('ade:',ade,'fde:',test_loss)
-
-    # if args.vis:
-    #     model_path = args.model_save_dir + '/' + args.model_name +'.pth.tar'
-    #     print('Loading model from:', model_path)
-    #     model_ckpt = torch.load(model_path)
-    #     model.load_state_dict(model_ckpt['state_dict'], strict=False)
-    #     test_loss, ade = vis(model, optimizer, 0, loader_test, backprop=False)
-
-    results = {'epochs': [], 'losess': []}
-    best_val_loss = 1e8
-    best_test_loss = 1e8
-    best_ade = 1e8
-    best_epoch = 0
-    lr_now = args.lr
-    for epoch in range(0, args.epochs):
-        if args.apply_decay:
-            if epoch % args.epoch_decay == 0 and epoch > 0:
-                lr_now = lr_decay(optimizer, lr_now, args.lr_gamma)
-        train(model, optimizer, epoch, loader_train)
-        
-        if epoch % args.test_interval == 0:
-            if args.vis:
-                visualize(loader_test, model, epoch, './img/')
-        test_loss, ade = test(model, optimizer, epoch, loader_test, backprop=False)
-        results['epochs'].append(epoch)
-        results['losess'].append(test_loss)
-        if test_loss < best_test_loss:
-            best_test_loss = test_loss
-            best_ade = ade
-            best_epoch = epoch
-
-            state = {'epoch': epoch,
-                        'state_dict': model.state_dict(),
-                        'optimizer': optimizer.state_dict()}
-            file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_best_no_dct.pth')
-            torch.save(state, file_path)
-        print("Best Test Loss: %.5f \t Best ade: %.5f \t Best epoch %d" % (best_test_loss, best_ade, best_epoch))
         print('The seed is :',seed)
 
-        # state = {'epoch': epoch,
-        #         'state_dict': model.state_dict(),
-        #         'optimizer': optimizer.state_dict()}
+        dataset_train = Supermarket(args.subset, args.past_length, args.future_length, device)
+        dataset_test = Supermarket(args.subset, args.past_length, args.future_length, device)
 
-        # file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_'+str(epoch)+'.pth.tar')
-        # torch.save(state, file_path)
+        loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
+                                                num_workers=args.num_workers)
+        loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False, drop_last=False,
+                                                num_workers=args.num_workers)
 
-    return best_val_loss, best_test_loss, best_epoch
+
+        model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh, dct=args.apply_dct)    
+
+        # print(model)
+        optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+
+        # if args.test:
+        #     model_path = args.model_save_dir + '/' + args.model_name +'.pth.tar'
+        #     print('Loading model from:', model_path)
+        #     model_ckpt = torch.load(model_path)
+        #     model.load_state_dict(model_ckpt['state_dict'], strict=False)
+        #     test_loss, ade = test(model, optimizer, 0, loader_test, backprop=False)
+        #     print('ade:',ade,'fde:',test_loss)
+
+        # if args.vis:
+        #     model_path = args.model_save_dir + '/' + args.model_name +'.pth.tar'
+        #     print('Loading model from:', model_path)
+        #     model_ckpt = torch.load(model_path)
+        #     model.load_state_dict(model_ckpt['state_dict'], strict=False)
+        #     test_loss, ade = vis(model, optimizer, 0, loader_test, backprop=False)
+
+        results = {'epochs': [], 'losess': []}
+        best_val_loss = 1e8
+        best_test_loss = 1e8
+        best_ade = 1e8
+        best_epoch = 0
+        lr_now = args.lr
+        for epoch in range(0, args.epochs):
+            train_loss, test_loss, ade  = 0,0,0
+            if args.apply_decay:
+                if epoch % args.epoch_decay == 0 and epoch > 0:
+                    lr_now = lr_decay(optimizer, lr_now, args.lr_gamma)
+            train_loss = train(model, optimizer, epoch, loader_train)
+            
+            if epoch % args.test_interval == 0:
+                if args.vis:
+                    visualize(loader_test, model, epoch, './img/')
+                test_loss, ade = test(model, optimizer, epoch, loader_test, backprop=False)
+                results['epochs'].append(epoch)
+                results['losess'].append(test_loss)
+                if test_loss < best_test_loss:
+                    best_test_loss = test_loss
+                    best_ade = ade
+                    best_epoch = epoch
+
+                    state = {'epoch': epoch,
+                                'state_dict': model.state_dict(),
+                                'optimizer': optimizer.state_dict()}
+                    file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_best.pth.tar')
+                    torch.save(state, file_path)
+                print("Best Test Loss: %.5f \t Best ade: %.5f \t Best epoch %d" % (best_test_loss, best_ade, best_epoch))
+                print('The seed is :',seed)
+
+                state = {'epoch': epoch,
+                        'state_dict': model.state_dict(),
+                        'optimizer': optimizer.state_dict()}
+
+                file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_'+str(epoch)+'.pth.tar')
+                torch.save(state, file_path)
+            wandb.log({
+                'epoch': epoch, 
+                'train_loss': train_loss, 
+                'ade': ade, 
+                'test_loss': test_loss
+            })
+
 
 constant = 1
 
@@ -313,7 +365,8 @@ def test(model, optimizer, epoch, loader, backprop=True):
 
 
 if __name__ == "__main__":
-    main()
+    wandb.agent(sweep_id, function=main, count=40)
+
 
 
 

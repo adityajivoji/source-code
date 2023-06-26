@@ -73,10 +73,11 @@ def plot_trajectory(loc, loc_end, loc_pred_head, epoch, save_dir=None):
         plt.legend()
 
         # Save the plot if save_dir is provided
-        if save_dir:
+        if save_dir and index in [0,1,2,3]:
             os.makedirs(save_dir, exist_ok=True)
-            save_path = os.path.join(save_dir, f'trajectory_plot_{epoch}_{index}.png')
+            save_path = os.path.join(save_dir, f'trajectory_plot_no_dct_{epoch}_{index}.png')
             plt.savefig(save_path)
+        plt.close()
 
 def visualize(loader_test, model, epoch, save_dir=None):
     with torch.no_grad():
@@ -110,28 +111,28 @@ def visualize(loader_test, model, epoch, save_dir=None):
                 break
             
 if  __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='VAE MNIST Example')
+    parser = argparse.ArgumentParser(description='main supermarket')
     parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
     parser.add_argument('--batch_size', type=int, default=64, metavar='N',
-                        help='input batch size for training (default: 128)')
+                        help='input batch size for training (default: 64)')
     parser.add_argument('--epochs', type=int, default=60, metavar='N',
-                        help='number of epochs to train (default: 10)')
+                        help='number of epochs to train (default: 64)')
     parser.add_argument('--num_workers', type=int, default=2, metavar='N',
-                        help='number of epochs to train (default: 10)')
-    parser.add_argument('--past_length', type=int, default=8, metavar='N',
-                        help='number of epochs to train (default: 10)')
+                        help='number of workers for data loading (default: 2)')
+    parser.add_argument('--past_length', type=int, default=10, metavar='N',
+                        help='past length of the trajectory (default: 10)')
     parser.add_argument('--future_length', type=int, default=12, metavar='N',
-                        help='number of epochs to train (default: 10)')
+                        help='future length of the trajectory (default: 10)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
-                        help='enables CUDA training')
+                        help='disable CUDA training')
     parser.add_argument('--seed', type=int, default=-1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--log_interval', type=int, default=1, metavar='N',
-                        help='how many batches to wait before logging training status')
-    parser.add_argument('--test_interval', type=int, default=1, metavar='N',
-                        help='how many epochs to wait before logging test')
-    parser.add_argument('--outf', type=str, default='n_body_system/logs', metavar='N',
-                        help='folder to output vae')
+                        help='how many batches to wait before logging training status (default: 1)')
+    parser.add_argument('--test_interval', type=int, default=5, metavar='N',
+                        help='how many epochs to wait before logging test (default: 1)')
+    parser.add_argument('--outf', type=str, default='supermarket/logs', metavar='N',
+                        help='folder to output log')
     parser.add_argument('--lr', type=float, default=5e-4, metavar='N',
                         help='learning rate')
     parser.add_argument('--epoch_decay', type=int, default=2, metavar='N',
@@ -139,29 +140,17 @@ if  __name__ == "__main__":
     parser.add_argument('--lr_gamma', type=float, default=0.8, metavar='N',
                         help='the lr decay ratio')
     parser.add_argument('--nf', type=int, default=64, metavar='N',
-                        help='learning rate')
-    parser.add_argument('--model', type=str, default='egnn_vel', metavar='N',
-                        help='available models: gnn, baseline, linear, linear_vel, se3_transformer, egnn_vel, rf_vel, tfn')
-    parser.add_argument('--attention', type=int, default=0, metavar='N',
-                        help='attention in the ae model')
-    parser.add_argument('--n_layers', type=int, default=4, metavar='N',
-                        help='number of layers for the autoencoder')
-    parser.add_argument('--degree', type=int, default=2, metavar='N',
-                        help='degree of the TFN and SE3')
+                        help='number of features')
     parser.add_argument('--channels', type=int, default=64, metavar='N',
                         help='number of channels')
     parser.add_argument('--max_training_samples', type=int, default=3000, metavar='N',
                         help='maximum amount of training samples')
-    parser.add_argument('--dataset', type=str, default="nbody", metavar='N',
-                        help='nbody_small, nbody')
-    parser.add_argument('--sweep_training', type=int, default=0, metavar='N',
-                        help='0 nor sweep, 1 sweep, 2 sweep small')
+    parser.add_argument('--dataset', type=str, default="german_4", metavar='N',
+                        help='subset of dataset')
     parser.add_argument('--time_exp', type=int, default=0, metavar='N',
                         help='timing experiment')
     parser.add_argument('--weight_decay', type=float, default=1e-12, metavar='N',
-                        help='timing experiment')
-    parser.add_argument('--div', type=float, default=1, metavar='N',
-                        help='timing experiment')
+                        help='weight decay')
     parser.add_argument('--norm_diff', type=eval, default=False, metavar='N',
                         help='normalize_diff')
     parser.add_argument('--tanh', type=eval, default=False, metavar='N',
@@ -170,26 +159,43 @@ if  __name__ == "__main__":
                         help='Name of the subset.')
     parser.add_argument('--model_save_dir', type=str, default='supermarket/saved_models',
                         help='Name of the subset.')
-    parser.add_argument('--scale', type=float, default=1, metavar='N',
-                        help='dataset scale')
     parser.add_argument("--apply_decay",action='store_true')
-    parser.add_argument("--res_pred",action='store_true')
     parser.add_argument("--supervise_all",action='store_true')
     parser.add_argument('--model_name', type=str, default='supermarket_best', metavar='N',
                         help='dataset scale')
     parser.add_argument('--test_scale', type=float, default=1, metavar='N',
                         help='dataset scale')
+    parser.add_argument('--n_layers', type=int, default=4, metavar='N',
+                        help='number of layers for the autoencoder')
     parser.add_argument("--test",action='store_true')
     parser.add_argument("--vis",action='store_true')
     args = parser.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    args.batch_size = 64
+    args.epochs = 250
+    args.lr = 0.00008864871648297063
+    args.epoch_decay = 1
+    args.lr_gamma = 0.6503359937533781
+    args.nf = 512
+    args.channels = 512
+    args.tanh = True
     dataset_test = Supermarket(args.subset, args.past_length, args.future_length, device)
 
     loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False, drop_last=False,
                                               num_workers=args.num_workers)
 
-    model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh)    
-    model.load_state_dict(torch.load("./supermarket/saved_models/german_4_ckpt_best.pth"))
+    model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh, dct=False)    
+        # Specify the path to the saved model checkpoint
+    checkpoint_path = "./supermarket/saved_models/german_4_ckpt_best_no_dct.pth"
+
+    # Load the checkpoint
+    checkpoint = torch.load(checkpoint_path, map_location=torch.device('cuda'))
+
+    # Extract the model state dictionary from the checkpoint
+    state_dict = checkpoint['state_dict']
+
+    # Load the state dictionary into the model
+    model.load_state_dict(state_dict)
     model.eval()
 
     with torch.no_grad():
@@ -223,7 +229,7 @@ if  __name__ == "__main__":
                 index = 5
                 gt = np.concatenate((loc[index], loc_end[index]), axis=0)
                 pred_0 = np.concatenate((loc[index], loc_pred[index][index]), axis = 0)
-                plot_trajectory(loc[index], loc_end[index],loc_pred[index])
+                plot_trajectory(loc[index], loc_end[index],loc_pred[index], epoch=0, save_dir='supermarket/saved_models/')
                 break
 
 
