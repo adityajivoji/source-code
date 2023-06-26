@@ -186,23 +186,7 @@ def main(config=None):
 
         model = EqMotion(in_node_nf=args.past_length, in_edge_nf=2, hidden_nf=args.nf, in_channel=args.past_length, hid_channel=args.channels, out_channel=args.future_length,device=device, n_layers=args.n_layers, recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh, dct=args.apply_dct)    
 
-        # print(model)
         optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-
-        # if args.test:
-        #     model_path = args.model_save_dir + '/' + args.model_name +'.pth.tar'
-        #     print('Loading model from:', model_path)
-        #     model_ckpt = torch.load(model_path)
-        #     model.load_state_dict(model_ckpt['state_dict'], strict=False)
-        #     test_loss, ade = test(model, optimizer, 0, loader_test, backprop=False)
-        #     print('ade:',ade,'fde:',test_loss)
-
-        # if args.vis:
-        #     model_path = args.model_save_dir + '/' + args.model_name +'.pth.tar'
-        #     print('Loading model from:', model_path)
-        #     model_ckpt = torch.load(model_path)
-        #     model.load_state_dict(model_ckpt['state_dict'], strict=False)
-        #     test_loss, ade = vis(model, optimizer, 0, loader_test, backprop=False)
 
         results = {'epochs': [], 'losess': []}
         best_val_loss = 1e8

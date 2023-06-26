@@ -156,7 +156,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
     if args.test:
-        model_path = args.model_save_dir + '/' + args.model_name +'.pth.tar'
+        model_path = args.model_save_dir + '/' + args.model_name +'.pt'
         print('Loading model from:', model_path)
         model_ckpt = torch.load(model_path)
         model.load_state_dict(model_ckpt['state_dict'], strict=False)
@@ -193,7 +193,7 @@ def main():
                 state = {'epoch': epoch,
                             'state_dict': model.state_dict(),
                             'optimizer': optimizer.state_dict()}
-                file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_best.pth.tar')
+                file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_best.pt')
                 torch.save(state, file_path)
             print("Best Test Loss: %.5f \t Best ade: %.5f \t Best epoch %d" % (best_test_loss, best_ade, best_epoch))
             print('The seed is :',seed)
@@ -202,7 +202,7 @@ def main():
                     'state_dict': model.state_dict(),
                     'optimizer': optimizer.state_dict()}
 
-            file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_'+str(epoch)+'.pth.tar')
+            file_path = os.path.join(args.model_save_dir, str(args.subset)+'_ckpt_'+str(epoch)+'.pt')
             torch.save(state, file_path)
 
     return best_val_loss, best_test_loss, best_epoch

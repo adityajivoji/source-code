@@ -251,7 +251,7 @@ if  __name__ == "__main__":
                 index = 5
                 print(loc.shape, loc_end.shape, loc_pred.shape)
 
-                plot_trajectory(loc[index], loc_end[index],loc_pred[index], epoch=0, save_dir='eth_ucy/saved_models/')
+                plot_trajectory(loc[index], loc_end[index],loc_pred[index], epoch=0, save_dir='eth_ucy/img/')
                 break
 
 

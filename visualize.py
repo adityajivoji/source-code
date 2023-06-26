@@ -229,7 +229,7 @@ if  __name__ == "__main__":
                 index = 5
                 gt = np.concatenate((loc[index], loc_end[index]), axis=0)
                 pred_0 = np.concatenate((loc[index], loc_pred[index][index]), axis = 0)
-                plot_trajectory(loc[index], loc_end[index],loc_pred[index], epoch=0, save_dir='supermarket/saved_models/')
+                plot_trajectory(loc[index], loc_end[index],loc_pred[index], epoch=0, save_dir='supermarket/img/')
                 break
 
 
