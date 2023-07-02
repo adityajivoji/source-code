@@ -19,7 +19,7 @@ parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
 parser.add_argument('--epochs', type=int, default=60, metavar='N',
                     help='number of epochs to train (default: 64)')
-parser.add_argument('--num_workers', type=int, default=2, metavar='N',
+parser.add_argument('--num_workers', type=int, default=8, metavar='N',
                     help='number of workers for data loading (default: 2)')
 parser.add_argument('--past_length', type=int, default=10, metavar='N',
                     help='past length of the trajectory (default: 10)')
@@ -109,12 +109,12 @@ def lr_decay(optimizer, lr_now, gamma):
 def main():
     args.batch_size = 64
     args.epochs = 250
-    args.lr = 0.00008864871648297063
-    args.epoch_decay = 1
-    args.lr_gamma = 0.6503359937533781
+    args.lr = 0.0000951481916975214
+    args.epoch_decay = 2
+    args.lr_gamma =0.7219335194478185
     args.nf = 512
     args.channels = 512
-    args.tanh = True
+    args.tanh = False
     # seed = 861
     print(args)
     # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
