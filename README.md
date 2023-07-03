@@ -1,4 +1,29 @@
 # Indoor Trajecotry Forecasting
+
+## Thor Dataset
+To download the dataset, run
+```
+cd thor/raw_dataset
+./download.sh
+```
+You can also download the dataset from the following [LINK](https://zenodo.org/record/3382145)
+
+**Note**: Download tsv files for 3D data
+
+To preprocess the file to .npy file, run the following command
+  ```
+  python visualize_thor.py
+  ```
+  
+  ### Run experiments
+  To train, run (you can add optional arguments)
+  ```
+  CUDA_VISIBLE_DEVICES={GPU_ID} python main_thor.py --subset {subset_name}
+  ```
+  To evaluate, run
+  ```
+  CUDA_VISIBLE_DEVICES={GPU_ID} python main_thor.py --subset {subset_name} --test --model_name {saved_model_name}
+  ```
 ## Supermarket Dataset
 To download the dataset, run
 ```

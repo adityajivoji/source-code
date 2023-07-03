@@ -63,11 +63,11 @@ class preprocessor(object):
                 
             elif split == "test":
                 np.save(os.path.join(folder, self.file_name[:-4]+'_data_test.npy'), test)
-                np.save(os.path.join(folder, self.file_name[:-4]+'_num_train.npy'), num_test)
+                np.save(os.path.join(folder, self.file_name[:-4]+'_num_test.npy'), num_test)
                 
             else:
-                np.save(os.path.join(folder, self.file_name+'data_val.npy'), val)
-                np.save(os.path.join(folder, self.file_name+'num_train.npy'), num_val)
+                np.save(os.path.join(folder, self.file_name[:-4]+'data_val.npy'), val)
+                np.save(os.path.join(folder, self.file_name[:-4]+'num_val.npy'), num_val)
                 
         
     def chunks_to_traj(self, chunks):
@@ -87,11 +87,8 @@ class preprocessor(object):
                 trajectory = [] # storing the trajectory of all the agents that are moving
                 for markers in (chunk_traj.keys()):
                     traj = np.array(chunk_traj[markers][total_length*i:total_length*(i+1)])
-                    # print("traj.shape", traj.shape)
                     if self.validate_trajectory(traj):
                         trajectory.append(traj)
-                # print("trajectory", np.array(trajectory).shape)
-                # print("trajectory", np.array(trajectory)[None].shape)
                 
                 trajectories.append(np.array(trajectory))
         self.save_as_numpy(trajectories)
@@ -144,7 +141,7 @@ class preprocessor(object):
             else:
                 # start new trajectory
                 # save previous trajectory if length greater than 20
-                if len(active_members)>0 and len(current_trajectory[list(active_members)[0]]) >= 20:
+                if len(active_members)>0 and len(current_trajectory[list(active_members)[0]]) >= 80:
                     chunks[f'trajectory_{trajectory_num}'] = [{
                         'start_frame': start_frame,
                         'end_frame': row['Frame'],
@@ -165,7 +162,10 @@ class preprocessor(object):
         return chunks
     
 if __name__ == "__main__":
-    preprocess = preprocessor(file_name='dataset.tsv', data_root='./')
-    preprocess()
+    raw_files = os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'raw_dataset'))
+    raw_files = [file for file in raw_files if file.endswith('.tsv')]
+    for file in raw_files:
+        preprocess = preprocessor(file_name=file, data_root='./raw_dataset')
+        preprocess()
 
 
