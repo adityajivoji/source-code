@@ -12,8 +12,12 @@ You can also download the dataset from the following [LINK](https://zenodo.org/r
 
 To preprocess the file to .npy file, run the following command
   ```
-  python visualize_thor.py
+  python thor/preprocess.py
   ```
+To visualize the processed data, run the following command
+```
+python visualize.py
+```
   
   ### Run experiments
   To train, run (you can add optional arguments)
