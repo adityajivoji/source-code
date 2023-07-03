@@ -15,7 +15,7 @@ table {
 <body>
 
 <table>
-  <caption>ADE/FDE score Comparison</caption>
+  <caption style="font-weight: bold; font-size: 1.5em;">ADE/FDE score Comparison</caption>
   <thead>
     <tr>
       <th rowspan="2">Model Name</th>
