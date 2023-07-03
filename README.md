@@ -93,7 +93,7 @@ You can also download the dataset from the following [LINK](https://zenodo.org/r
 
 **Note**: Download tsv files for 3D data
 
-To preprocess the file to .npy file, run the following command
+To preprocess the file to .npy file, run the following command, this will preprocess all .tsv files in the raw_dataset folder
   ```
   python thor/preprocess.py
   ```
