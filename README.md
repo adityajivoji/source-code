@@ -1,5 +1,88 @@
 # Indoor Trajecotry Forecasting
 
+
+<html>
+<head>
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+
+</style>
+</head>
+<body>
+
+<table>
+  <caption>ADE/FDE score Comparison</caption>
+  <thead>
+    <tr>
+      <th rowspan="2">Model Name</th>
+      <th colspan="5">Outdoor Dataset</th>
+      <th colspan="2">Indoor Dataset</th>
+    </tr>
+    <tr>
+      <th>ETH</th>
+      <th>Hotel</th>
+      <th>Univ</th>
+      <th>ZARA01</th>
+      <th>ZARA02</th>
+      <th>Supermarket</th>
+      <th>THÖR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PECnet</td>
+      <td>0.88/1.56</td>
+      <td>0.40/0.63</td>
+      <td>0.66/0.95</td>
+      <td>0.29/0.42</td>
+      <td>0.20/0.17</td>
+      <td>1.59/1.42</td>
+      <td>Value</td>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+      <td>Eqmotion (Deterministic)</td>
+      <td>0.94/1.90</td>
+      <td>0.30/0.56</td>
+      <td>0.50/1.08</td>
+      <td>0.40/0.88</td>
+      <td>0.32/0.70</td>
+      <td>3.84/6.33</td>
+      <td>Value</td>
+    </tr>
+    <tr>
+      <td>Eqmotion (Multi Prediction)</td>
+      <td>0.42/0.62</td>
+      <td>0.14/1.88</td>
+      <td>0.23/0.42</td>
+      <td>0.21/0.37</td>
+      <td>0.13/0.24</td>
+      <td>2.65/2.20</td>
+      <td>Value</td>
+    </tr>
+    <tr>
+      <td>Our model</td>
+      <td>Value</td>
+      <td>Value</td>
+      <td>Value</td>
+      <td>Value</td>
+      <td>Value</td>
+      <td>Value</td>
+      <td>Value</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>
+
+
+
 ## Thor Dataset
 To download the dataset, run
 ```
@@ -18,7 +101,7 @@ To visualize the processed data, run the following command
 ```
 python visualize.py
 ```
-  
+
   ### Run experiments
   To train, run (you can add optional arguments)
   ```
